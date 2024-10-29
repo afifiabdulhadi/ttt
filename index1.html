@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe 16 Kotak</title>
+    <style>
+         body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #83d58f;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+            background-image: url('gambar/gbr.jpeg'); /* Tambahkan gambar wallpaper */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #83d58f;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: hsl(150, 100%, 34%);
+            font-size: 2em;
+            cursor: pointer;
+            border: 2px solid #090808;
+        }
+        .cell:hover {
+            background-color: #d79494;
+           
+        }
+        
+        .message, .scoreboard {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+        .reset-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    }
+
+    .score {
+        font-size: 1.5em;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #65a8a5;
+        border: 2px solid #000000;
+        text-align: center;
+    }
+
+    .message {
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #040501;
+}
+.score {
+    font-size: 1em;  /* Ukuran font lebih kecil */
+    font-weight: bold;
+    padding: 3px;      /* Mengurangi padding */
+    border-radius: 5px;
+    background-color: #a2da65;
+    border: 2px solid #fbf6f6;
+    text-align: center;
+}
+.modal {
+    display: none; /* Sembunyikan modal secara default */
+    position: fixed;
+    z-index: 1; /* Letakkan modal di atas semua konten */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Warna latar belakang transparan */
+}
+
+.modal-content {
+    background-color: #88ef97;
+    margin: 15% auto; /* 15% dari atas dan tengahkan modal */
+    padding: 20px;
+    border: 1px solid #7976a7;
+    width: 80%;
+    max-width: 400px; /* Maksimal lebar modal */
+    text-align: center;
+}
+
+.reset-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #f44336; /* Warna tombol merah */
+    color: white; /* Warna teks putih */
+    border: none; /* Menghilangkan border */
+    border-radius: 5px; /* Membuat sudut tombol melengkung */
+}
+
+.reset-button:hover {
+    background-color: #d32f2f; /* Warna tombol saat di-hover lebih gelap */
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    </style>
+    
+
+</head>
+<body>
+    <div id="winnerModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <p id="winnerMessage"></p>
+        </div>
+    </div>
+    
+   
+    
+
+<div id="scoreboard" class="scoreboard">
+    <div id="scoreX" class="score">Skor X: 0</div>
+    <div id="scoreO" class="score">Skor O: 0</div>
+</div>
+
+<div class="game"></div>
+    
+    <div id="board" class="board"></div>
+    <div id="message" class="message"></div>
+    <div id="scoreboard" class="scoreboard"></div>
+    <button id="resetButton" class="reset-button">Reset Game</button>
+</div>
+<script>
+    const boardElement = document.getElementById('board');
+    const messageElement = document.getElementById('message');
+    const scoreboardElement = document.getElementById('scoreboard');
+    const resetButton = document.getElementById('resetButton');
+    
+    let board = Array(16).fill("");
+    let currentPlayer = "U";
+    let gameActive = true;
+
+    let scores = {
+        "X": 0,
+        "O": 0
+    };
+
+    const winningCombinations = [
+        // Baris
+        [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
+        // Kolom
+        [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+        // Diagonal
+        [0, 5, 10, 15], [3, 6, 9, 12]
+    ];
+
+    function createBoard() {
+        boardElement.innerHTML = '';
+        board.forEach((cell, index) => {
+            const cellElement = document.createElement('div');
+            cellElement.classList.add('cell');
+            cellElement.dataset.index = index;
+            cellElement.textContent = cell;
+            cellElement.addEventListener('click', handleCellClick);
+            boardElement.appendChild(cellElement);
+        });
+    }
+
+    function handleCellClick(event) {
+        const index = event.target.dataset.index;
+
+        if (board[index] !== "" || !gameActive) {
+            return;
+        }
+
+        board[index] = currentPlayer;
+        event.target.textContent = currentPlayer;
+
+        if (checkWin()) {
+          
+            scores[currentPlayer]++;
+            updateScoreboard();
+            gameActive = false;
+            return;
+        }
+
+        if (board.every(cell => cell !== "")) {
+            messageElement.textContent = "Seri!";
+            gameActive = false;
+            return;
+        }
+
+        currentPlayer = currentPlayer === "U" ? "H" : "U";
+    }
+    function handleCellClick(event) {
+    const index = event.target.dataset.index;
+
+    if (board[index] !== "" || !gameActive) {
+        return;
+    }
+
+    board[index] = currentPlayer;
+    event.target.textContent = currentPlayer;
+
+    // Tambahkan kelas "o" jika player O bermain
+    if (currentPlayer === "O") {
+        event.target.classList.add("o");
+    }
+
+    if (checkWin()) {
+    
+        scores[currentPlayer]++;
+        updateScoreboard();
+        gameActive = false;
+        return;
+    }
+
+    if (board.every(cell => cell !== "")) {
+        messageElement.textContent = "Seri!";
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = currentPlayer === "U" ? "H" : "U";
+}
+
+
+    function checkWin() {
+        return winningCombinations.some(combination => {
+            return combination.every(index => {
+                return board[index] === currentPlayer;
+            });
+        });
+    }
+
+    function updateScoreboard() {
+        scoreboardElement.textContent = `Skor  X= ${scores["X"]}, Skor  O= ${scores["O"]}`;
+        
+    }
+
+    function resetGame() {
+        board = Array(16).fill("");
+        currentPlayer = "X"; 
+        gameActive = true;
+        messageElement.textContent = "";
+        createBoard();
+    }
+
+    resetButton.addEventListener('click', resetGame);
+
+    createBoard();
+    updateScoreboard();
+
+    function updateScoreboard() {
+    document.getElementById('scoreX').textContent = `Skor X: ${scores["X"]}`;
+    document.getElementById('scoreO').textContent = `Skor O: ${scores["O"]}`;
+}
+function checkWin() {
+    if (winningCombinations.some(combination => {
+        return combination.every(index => {
+            return board[index] === currentPlayer;
+        });
+    })) {
+        showWinnerModal(currentPlayer); // Panggil fungsi untuk menampilkan popup
+        scores[currentPlayer]++;
+        updateScoreboard();
+        gameActive = false;
+        return true;
+    }
+    return false;
+}
+
+function showWinnerModal(winner) {
+    const modal = document.getElementById("winnerModal");
+    const winnerMessage = document.getElementById("winnerMessage");
+    winnerMessage.textContent = `Pemain ${winner} menang!`;
+    modal.style.display = "block";
+}
+
+// Untuk menutup modal saat diklik
+document.getElementById("closeModal").onclick = function() {
+    document.getElementById("winnerModal").style.display = "none";
+}
+
+// Untuk menutup modal ketika klik di luar modal
+window.onclick = function(event) {
+    const modal = document.getElementById("winnerModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+function handleCellClick(event) {
+    const index = event.target.dataset.index;
+
+    if (board[index] !== "" || !gameActive) {
+        return;
+    }
+
+    board[index] = currentPlayer;
+    event.target.textContent = currentPlayer;
+
+    if (checkWin()) {
+        scores[currentPlayer]++;
+        updateScoreboard();
+        gameActive = false;
+        return;
+    }
+
+    if (board.every(cell => cell !== "")) {
+        showDrawModal(); // Tampilkan popup seri
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = currentPlayer === "U" ? "H" : "U";
+}
+
+// Fungsi untuk menampilkan modal ketika seri
+function showDrawModal() {
+    const modal = document.getElementById("winnerModal");
+    const winnerMessage = document.getElementById("winnerMessage");
+    winnerMessage.textContent = "Permainan berakhir seri!";
+    modal.style.display = "block";
+}
+
+// Tutup modal saat diklik
+document.getElementById("closeModal").onclick = function() {
+    document.getElementById("winnerModal").style.display = "none";
+}
+
+// Tutup modal jika mengklik di luar modal
+window.onclick = function(event) {
+    const modal = document.getElementById("winnerModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+</script>
+
+</body>
+</html>

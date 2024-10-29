@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe 4x4</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Skor X: <span id="scoreX">0</span> Skor O: <span id="scoreO">0</span></h1>
+    <div id="board">
+        <div class="cell" id="0"></div>
+        <div class="cell" id="1"></div>
+        <div class="cell" id="2"></div>
+        <div class="cell" id="3"></div>
+        <div class="cell" id="4"></div>
+        <div class="cell" id="5"></div>
+        <div class="cell" id="6"></div>
+        <div class="cell" id="7"></div>
+        <div class="cell" id="8"></div>
+        <div class="cell" id="9"></div>
+        <div class="cell" id="10"></div>
+        <div class="cell" id="11"></div>
+        <div class="cell" id="12"></div>
+        <div class="cell" id="13"></div>
+        <div class="cell" id="14"></div>
+        <div class="cell" id="15"></div>
+    </div>
+    <button id="resetButton">Reset Game</button>
+
+    <script src="script.js"></script>
+</body>
+<style>
+    body {
+    text-align: center;
+    background-color: #88C999;
+    font-family: Arial, sans-serif;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 5px;
+    margin: 20px auto;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: #E6F7E6;
+    border: 2px solid black;
+    font-size: 2em;
+    text-align: center;
+    line-height: 100px;
+    cursor: pointer;
+}
+
+#resetButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+</style>
+
+<script>
+    const winningCombinations = [
+    // Rows
+    [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
+    // Columns
+    [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+    // Diagonals
+    [0, 5, 10, 15], [3, 6, 9, 12]
+];
+
+let board = Array(16).fill('');
+let currentPlayer = 'X';
+let scoreX = 0;
+let scoreO = 0;
+const cells = document.querySelectorAll('.cell');
+const scoreXDisplay = document.getElementById('scoreX');
+const scoreODisplay = document.getElementById('scoreO');
+const resetButton = document.getElementById('resetButton');
+
+cells.forEach(cell => {
+    cell.addEventListener('click', handleClick);
+});
+
+resetButton.addEventListener('click', resetGame);
+
+function handleClick(e) {
+    const id = e.target.id;
+    if (board[id] === '') {
+        board[id] = currentPlayer;
+        e.target.textContent = currentPlayer;
+        if (checkWin()) {
+            if (currentPlayer === 'X') {
+                scoreX++;
+                scoreXDisplay.textContent = scoreX;
+            } else {
+                scoreO++;
+                scoreODisplay.textContent = scoreO;
+            }
+            setTimeout(resetBoard, 500);
+        } else {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+    }
+}
+
+function checkWin() {
+    return winningCombinations.some(combination => {
+        return combination.every(index => board[index] === currentPlayer);
+    });
+}
+
+function resetBoard() {
+    board.fill('');
+    cells.forEach(cell => {
+        cell.textContent = '';
+    });
+    currentPlayer = 'X';
+}
+
+function resetGame() {
+    resetBoard();
+    scoreX = 0;
+    scoreO = 0;
+    scoreXDisplay.textContent = scoreX;
+    scoreODisplay.textContent = scoreO;
+}
+
+</script>
+</html>
